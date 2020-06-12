@@ -3,6 +3,6 @@
 # Declare variables to be passed into your templates.
 
 namespace: test-app
-app-name: user-management-helm
+appName: user-management-helm
 replica: 3
 image: hpeartifacts-docker-harmony-local.jfrog.io/akka-http-quickstart-scala:lihas

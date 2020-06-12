@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ Values.app-name }}-deployment
-  namespace: {{ Values.namespace }}
+  name: {{ .Values.appName }}-deployment
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
     matchLabels:
       app: my-helm-app
-  replicas: {{ Values.replica }}
+  replicas: {{ .Values.replica }}
   template:
     metadata:
       labels:
@@ -15,6 +15,8 @@ spec:
     spec:
       containers:
       - name: app
-        image: {{ Values.image }}
+        image: {{ .Values.image }}
         ports:
         - containerPort: 8080
+      imagePullSecrets:
+      - name: test-regcred

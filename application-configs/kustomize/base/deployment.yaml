@@ -1,20 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: OVERRIDE_ME
-  namespace: OVERRIDE_ME
+  name: user-management-kustomize-deployment
+  namespace: OVERRIDE_ME 
 spec:
   selector:
     matchLabels:
-      app: my-helm-app
-  replicas: OVERRIDE_ME
+      app: my-kustomize-app
+  replicas: 1
   template:
     metadata:
       labels:
-        app: my-helm-app
+        app: my-kustomize-app
     spec:
       containers:
       - name: app
         image: OVERRIDE_ME
         ports:
         - containerPort: 8080
+      imagePullSecrets:
+      - name: test-regcred
