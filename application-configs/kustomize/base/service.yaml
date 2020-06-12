@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: OVERRIDE_ME
+  namespace: OVERRIDE_ME
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: my-helm-app

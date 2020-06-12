@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: OVERRIDE_ME
+  namespace: OVERRIDE_ME
+spec:
+  selector:
+    matchLabels:
+      app: my-helm-app
+  replicas: OVERRIDE_ME
+  template:
+    metadata:
+      labels:
+        app: my-helm-app
+    spec:
+      containers:
+      - name: app
+        image: OVERRIDE_ME
+        ports:
+        - containerPort: 8080
