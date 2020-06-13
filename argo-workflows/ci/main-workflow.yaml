@@ -1,0 +1,113 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: ci-workflow-
+spec:
+  # hostNetwork: true
+  volumes:
+  - name: docker-config
+    secret: 
+      secretName: test-regcred
+  entrypoint: ci-template  
+  templates:
+  - name: ci-template
+    dag:
+      tasks:
+      - name: checkout-code
+        template: checkout-code-template
+      # - name: build
+      #   template: build-template
+      #   dependencies: [checkout-code]
+      #   arguments:
+      #     artifacts:
+      #     - name: source-code
+      #       from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
+      # - name: unit-test
+      #   template: unit-test-template
+      #   dependencies: [build]
+      #   arguments:
+      #     artifacts:
+      #     - name: source-code
+      #       from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
+      - name: generate-artifacts
+        template: generate-artifacts-template
+        dependencies: [unit-test]
+        arguments:
+          artifacts:
+          - name: source-code
+            from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
+          parameters:
+          - name: git-sha
+            value: "{{tasks.checkout-code.outputs.parameters.git-sha}}"
+
+  - name: checkout-code-template
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+        git:
+          repo: https://github.com/sahil-sawhney/test-application-ci.git
+          revision: master
+    container:
+      image: alpine/git
+      command: [sh, -c]
+      args: ["cd /src && git rev-parse --short HEAD > /tmp/git-commit-id"]
+    outputs:
+      artifacts:
+      - name: source-code
+        path: /src
+      parameters:
+      - name: git-sha
+        valueFrom:
+          path: /tmp/git-commit-id
+
+  - name: build-template
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+    container:
+      image: openjdk:8
+      command: [sh, -c]
+      workingDir: /src
+      args: ["./sbt clean compile"]
+
+  - name: unit-test-template
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+    container:
+      image: openjdk:8
+      command: [sh, -c]
+      workingDir: /src
+      args: ["./sbt test"]
+
+  - name: generate-artifacts-template
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+      parameters:
+      - name: git-sha
+    container:
+      image: docker
+      env:
+      # - name: DOCKER_HOST
+      #   value: 127.0.0.1
+      volumeMounts:
+      - name: docker-config
+        mountPath: /root/.docker/config.json
+        # subPath: .dockerconfigjson
+      command: [sh, -c]
+      workingDir: /src
+      args: ["apk update; apk fetch openjdk8; apk add openjdk8; apk add --no-cache bash; DOCKER_TAG={{inputs.parameters.git-sha}}; cat /root/.docker/config.json; ./sbt docker:publish"]
+    # sidecars:
+    # - name: docker-in-docker
+    #   image: docker:dind
+    #   securityContext:
+    #     privileged: true
+    #   mirrorVolumeMounts: true
+
+
+      #docker login hpeartifacts-docker-harmony-local.jfrog.io -u $USER -p $PASSWORD; 

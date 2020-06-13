@@ -1,0 +1,82 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: ci-workflow-
+  # namespace: argo
+spec:
+  entrypoint: ci-template  
+  templates:
+  - name: ci-template
+    dag:
+      tasks:
+      - name: checkout-code
+        template: checkout-code-template
+      - name: build
+        template: build-template
+        dependencies: [checkout-code]
+        arguments:
+          artifacts:
+          - name: source-code
+            from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
+      - name: unit-test
+        template: unit-test-template
+        dependencies: [build]
+        arguments:
+          artifacts:
+          - name: source-code
+            from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
+      - name: generate-artifacts
+        template: generate-artifacts-template
+        dependencies: [unit-test]
+        arguments:
+          artifacts:
+          - name: source-code
+            from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
+
+  - name: checkout-code-template
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+        git:
+          repo: https://github.com/sahil-sawhney/test-application-ci.git
+          revision: master
+    container:
+      image: alpine
+      command: [sh, -c]
+      args: ["ls"]
+    outputs:
+      artifacts:
+      - name: source-code
+        path: /src
+  - name: build-template
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+    container:
+      image: openjdk:8u181-jre-alpine
+      command: [sh, -c]
+      args: ["cd src; ./sbt clean compile"]
+  - name: unit-test-template
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+    container:
+      image: openjdk:8u181-jre-alpine
+      command: [sh, -c]
+      args: ["cd src; ./sbt test"]
+  - name: generate-artifacts-template
+    inputs:
+      artifacts:
+      - name: source-code
+        path: /src
+    container:
+      image: alpine
+      command: [sh, -c]
+      args: ["ls"]
+      
+
+
+
