@@ -15,20 +15,20 @@ spec:
       tasks:
       - name: checkout-code
         template: checkout-code-template
-      # - name: build
-      #   template: build-template
-      #   dependencies: [checkout-code]
-      #   arguments:
-      #     artifacts:
-      #     - name: source-code
-      #       from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
-      # - name: unit-test
-      #   template: unit-test-template
-      #   dependencies: [build]
-      #   arguments:
-      #     artifacts:
-      #     - name: source-code
-      #       from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
+      - name: build
+        template: build-template
+        dependencies: [checkout-code]
+        arguments:
+          artifacts:
+          - name: source-code
+            from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
+      - name: unit-test
+        template: unit-test-template
+        dependencies: [build]
+        arguments:
+          artifacts:
+          - name: source-code
+            from: "{{tasks.checkout-code.outputs.artifacts.source-code}}"
       - name: generate-artifacts
         template: generate-artifacts-template
         dependencies: [unit-test]
@@ -98,16 +98,13 @@ spec:
       volumeMounts:
       - name: docker-config
         mountPath: /root/.docker/config.json
-        # subPath: .dockerconfigjson
+        subPath: .dockerconfigjson
       command: [sh, -c]
       workingDir: /src
-      args: ["apk update; apk fetch openjdk8; apk add openjdk8; apk add --no-cache bash; DOCKER_TAG={{inputs.parameters.git-sha}}; cat /root/.docker/config.json; ./sbt docker:publish"]
+      args: ["apk update; apk fetch openjdk8; apk add openjdk8; apk add --no-cache bash; DOCKER_TAG={{inputs.parameters.git-sha}}; ./sbt docker:publish"]
     # sidecars:
     # - name: docker-in-docker
     #   image: docker:dind
     #   securityContext:
     #     privileged: true
     #   mirrorVolumeMounts: true
-
-
-      #docker login hpeartifacts-docker-harmony-local.jfrog.io -u $USER -p $PASSWORD; 
