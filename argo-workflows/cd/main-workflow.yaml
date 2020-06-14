@@ -53,6 +53,9 @@ spec:
         git:
           repo: https://github.com/sahil-sawhney/test-config-cd.git
           revision: master
+    container:
+      image: alpine
+      command: ["ls"]
     outputs:
       artifacts:
       - name: cd-repo
@@ -100,7 +103,7 @@ spec:
       - name: kubeconfig
         mountPath: "/root/.kube"
 
-  - name: deploy-kustomize-test-app
+  - name: deploy-kustomize-test-app-template
     inputs:
       artifacts:
       - name: cd-repo
