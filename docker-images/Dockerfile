@@ -7,7 +7,8 @@ RUN apk add --no-cache bash curl
 
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
     mv ./kubectl /usr/local/bin/kubectl && \
-    chmod +x /usr/local/bin/kubectl
+    chmod +x /usr/local/bin/kubectl && \
+    mkdir -p /root/.kube
 
 RUN curl -LO https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
     tar -zxvf helm-${HELM_VERSION}-linux-amd64.tar.gz && \

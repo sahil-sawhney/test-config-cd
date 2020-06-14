@@ -6,6 +6,10 @@ spec:
   imagePullSecrets:
   - name: test-regcred
   entrypoint: cd-template
+  volumes:
+  - name: kubeconfig-vol
+    secret:
+      secretName: kubeconfig
   templates:
   - name: cd-template
     dag:
@@ -68,6 +72,9 @@ spec:
       - "{{workflow.parameters.artifactory-repo}}"
       - "{{workflow.parameters.artifactory-user}}"
       - "{{workflow.parameters.artifactory-password}}"
+      volumeMounts:
+      - name: kubeconfig
+        path: "/root/.kube"
         
   - name: deploy-helm-test-app-template
     inputs:
@@ -81,6 +88,9 @@ spec:
       args:
       - "{{workflow.parameters.helm-test-app-release}}"
       - "namespace={{workflow.parameters.helm-test-app-namespace}},image={{workflow.parameters.helm-test-app-image}}"
+      volumeMounts:
+        - name: kubeconfig
+          path: "/root/.kube"
 
   - name: pre-deploy-kustomize-test-app-template
     inputs:
@@ -96,6 +106,9 @@ spec:
       - "{{workflow.parameters.artifactory-repo}}"
       - "{{workflow.parameters.artifactory-user}}"
       - "{{workflow.parameters.artifactory-password}}"
+      volumeMounts:
+        - name: kubeconfig
+          path: "/root/.kube"
 
   - name: deploy-kustomize-test-app
     inputs:
@@ -106,3 +119,6 @@ spec:
       image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
       workingDir: /src/application-configs/kustomize
       command: "cd test-app; kustomize build overlays/dev | kubectl apply -f -"
+      volumeMounts:
+        - name: kubeconfig
+          path: "/root/.kube"
