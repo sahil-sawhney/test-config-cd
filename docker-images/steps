@@ -1,0 +1,5 @@
+docker login hpeartifacts-docker-harmony-local.jfrog.io
+docker build -t cd-workflow-base:latest .
+docker tag cd-workflow-base:latest hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
+docker push hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
+

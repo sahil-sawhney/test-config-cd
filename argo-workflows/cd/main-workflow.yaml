@@ -1,0 +1,108 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: cd-workflow-
+spec:
+  imagePullSecrets:
+  - name: test-regcred
+  entrypoint: cd-template
+  templates:
+  - name: cd-template
+    dag:
+      tasks:
+      - name: checkout-cd-repo
+        template: checkout-cd-repo-template
+      - name: pre-deploy-helm-test-app
+        template: pre-deploy-helm-test-app-template
+        dependencies: [checkout-cd-repo]
+        arguments:
+          artifacts:
+          - name: cd-repo
+            from: "{{tasks.checkout-cd-repo.outputs.artifacts.cd-repo}}"
+      - name: deploy-helm-test-app
+        template: deploy-helm-test-app-template
+        dependencies: [pre-deploy-helm-test-app]
+        arguments:
+          artifacts:
+          - name: cd-repo
+            from: "{{tasks.checkout-cd-repo.outputs.artifacts.cd-repo}}"
+      - name: pre-deploy-kustomize-test-app
+        template: pre-deploy-kustomize-test-app-template
+        dependencies: [checkout-cd-repo]
+        arguments:
+          artifacts:
+          - name: cd-repo
+            from: "{{tasks.checkout-cd-repo.outputs.artifacts.cd-repo}}"
+      - name: deploy-kustomize-test-app
+        template: deploy-kustomize-test-app-template
+        dependencies: [pre-deploy-kustomize-test-app]
+        arguments:
+          artifacts:
+          - name: cd-repo
+            from: "{{tasks.checkout-cd-repo.outputs.artifacts.cd-repo}}"
+  
+  - name: checkout-cd-repo-template
+    inputs:
+      artifacts:
+      - name: cd-repo
+        path: /src
+        git:
+          repo: https://github.com/sahil-sawhney/test-config-cd.git
+          revision: master
+    outputs:
+      artifacts:
+      - name: cd-repo
+        path: /src
+
+  - name: pre-deploy-helm-test-app-template
+    inputs:
+      artifacts:
+      - name: cd-repo
+        src: /src
+    container:
+      image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
+      workingDir: /src/scripts
+      command: "./deployment-prerequisites"
+      args:
+      - "{{workflow.parameters.helm-test-app-namespace}}"
+      - "{{workflow.parameters.artifactory-repo}}"
+      - "{{workflow.parameters.artifactory-user}}"
+      - "{{workflow.parameters.artifactory-password}}"
+        
+  - name: deploy-helm-test-app-template
+    inputs:
+      artifacts:
+      - name: cd-repo
+        src: /src
+    container:
+      image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
+      workingDir: /src/scripts
+      command: "./helm-deployment"
+      args:
+      - "{{workflow.parameters.helm-test-app-release}}"
+      - "namespace={{workflow.parameters.helm-test-app-namespace}},image={{workflow.parameters.helm-test-app-image}}"
+
+  - name: pre-deploy-kustomize-test-app-template
+    inputs:
+      artifacts:
+      - name: cd-repo
+        src: /src
+    container:
+      image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
+      workingDir: "/src/scripts"
+      command: "./deployment-prerequisites"
+      args:
+      - "{{workflow.parameters.kustomize-test-app-namespace}}"
+      - "{{workflow.parameters.artifactory-repo}}"
+      - "{{workflow.parameters.artifactory-user}}"
+      - "{{workflow.parameters.artifactory-password}}"
+
+  - name: deploy-kustomize-test-app
+    inputs:
+      artifacts:
+      - name: cd-repo
+        src: /src
+    container:
+      image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
+      workingDir: /src/application-configs/kustomize
+      command: "cd test-app; kustomize build overlays/dev | kubectl apply -f -"

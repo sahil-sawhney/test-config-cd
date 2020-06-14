@@ -1,0 +1,20 @@
+#!/bin/bash
+
+cd ../application-configs/helm
+
+HELM_RELEASE=$1
+HELM_VALUES=$2
+
+touch sub-values.yaml
+echo $HELM_VALUES > sub-values.yaml
+sed -i "s#,#\n#g" sub-values.yaml
+sed -i "s#=#: #g" sub-values.yaml
+
+if helm list | grep $HELM_RELEASE; then
+    helm install $HELM_RELEASE test-app --values sub-values.yaml
+else
+    helm upgrade $HELM_RELEASE test-app --values sub-values.yaml
+fi
+
+
+

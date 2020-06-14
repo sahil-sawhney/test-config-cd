@@ -1,3 +1,0 @@
-- op: replace
-  path: /metadata/name/OVERRIDE_ME
-  value: user-management-kustomize
