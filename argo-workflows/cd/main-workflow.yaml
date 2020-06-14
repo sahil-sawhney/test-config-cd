@@ -62,63 +62,53 @@ spec:
     inputs:
       artifacts:
       - name: cd-repo
-        src: /src
+        path: /src
     container:
       image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
       workingDir: /src/scripts
-      command: "./deployment-prerequisites"
-      args:
-      - "{{workflow.parameters.helm-test-app-namespace}}"
-      - "{{workflow.parameters.artifactory-repo}}"
-      - "{{workflow.parameters.artifactory-user}}"
-      - "{{workflow.parameters.artifactory-password}}"
+      command: ["./deployment-prerequisites"]
+      args: ["{{workflow.parameters.helm-test-app-namespace}}", "{{workflow.parameters.artifactory-repo}}", "{{workflow.parameters.artifactory-user}}", "{{workflow.parameters.artifactory-password}}"]
       volumeMounts:
       - name: kubeconfig
-        path: "/root/.kube"
+        mountPath: "/root/.kube"
         
   - name: deploy-helm-test-app-template
     inputs:
       artifacts:
       - name: cd-repo
-        src: /src
+        path: /src
     container:
       image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
       workingDir: /src/scripts
-      command: "./helm-deployment"
-      args:
-      - "{{workflow.parameters.helm-test-app-release}}"
-      - "namespace={{workflow.parameters.helm-test-app-namespace}},image={{workflow.parameters.helm-test-app-image}}"
+      command: ["./helm-deployment"]
+      args: ["{{workflow.parameters.helm-test-app-release}}", "namespace={{workflow.parameters.helm-test-app-namespace}},image={{workflow.parameters.helm-test-app-image}}"]
       volumeMounts:
-        - name: kubeconfig
-          path: "/root/.kube"
+      - name: kubeconfig
+        mountPath: "/root/.kube"
 
   - name: pre-deploy-kustomize-test-app-template
     inputs:
       artifacts:
       - name: cd-repo
-        src: /src
+        path: /src
     container:
       image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
       workingDir: "/src/scripts"
-      command: "./deployment-prerequisites"
-      args:
-      - "{{workflow.parameters.kustomize-test-app-namespace}}"
-      - "{{workflow.parameters.artifactory-repo}}"
-      - "{{workflow.parameters.artifactory-user}}"
-      - "{{workflow.parameters.artifactory-password}}"
+      command: ["./deployment-prerequisites"]
+      args: ["{{workflow.parameters.kustomize-test-app-namespace}}", "{{workflow.parameters.artifactory-repo}}", "{{workflow.parameters.artifactory-user}}", "{{workflow.parameters.artifactory-password}}"]
       volumeMounts:
-        - name: kubeconfig
-          path: "/root/.kube"
+      - name: kubeconfig
+        mountPath: "/root/.kube"
 
   - name: deploy-kustomize-test-app
     inputs:
       artifacts:
       - name: cd-repo
-        src: /src
+        path: /src
     container:
       image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
       workingDir: /src/application-configs/kustomize
-      command: "cd test-app; kustomize build overlays/dev | kubectl apply -f -"
+      command: ["cd test-app; kustomize build overlays/dev | kubectl apply -f -"]
       volumeMounts:
-        - name: kubeconfig
-          path: "/root/.kube"
+      - name: kubeconfig
+        mountPath: "/root/.kube"
