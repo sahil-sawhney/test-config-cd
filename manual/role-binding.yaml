@@ -4,18 +4,7 @@ metadata:
   name: argo-cluster-role
 rules:
 - apiGroups: ["*"]
-  resources:
-  - pods
-  - pods/exec
-  - secrets
-  - ingresses
-  - services
-  - jobs
-  - deployments
-  - statefulsets
-  - cronjobs
-  - workflows
-  - configmaps
+  resources: ["*"]
   verbs: ["*"]
   
 ---

@@ -114,7 +114,8 @@ spec:
     container:
       image: hpeartifacts-docker-harmony-local.jfrog.io/cd-workflow-base:latest
       workingDir: /src/application-configs/kustomize
-      command: ["cd test-app; kustomize build overlays/dev | kubectl apply -f -"]
+      command: [bash, -c]
+      args: ["cd test-app; kustomize build overlays/dev | kubectl apply -f -"]
       volumeMounts:
       - name: kubeconfig
         mountPath: "/root/.kube"
