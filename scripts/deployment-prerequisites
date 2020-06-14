@@ -6,6 +6,8 @@ ARTIFACTORY_USER=$3
 ARTIFACTORY_PASSWORD=$4
 
 kubectl create namespace $NAMESPACE | echo 'Namespace already exist'
+
 kubectl -n $NAMESPACE create secret docker-registry test-regcred --docker-server=$ARTIFACTORY_REPO \
     --docker-username=$ARTIFACTORY_USER --docker-password=$ARTIFACTORY_PASSWORD | echo 'Secret already exist'
+
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=$NAMESPACE:default
