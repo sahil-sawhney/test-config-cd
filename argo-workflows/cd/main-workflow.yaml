@@ -2,10 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: cd-workflow-
+  namespace: argo
 spec:
   imagePullSecrets:
   - name: test-regcred
   entrypoint: cd-template
+  serviceAccountName: argo
   volumes:
   - name: kubeconfig
     secret:

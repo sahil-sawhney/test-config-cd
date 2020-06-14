@@ -2,8 +2,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: ci-workflow-
+  namespace: argo
 spec:
   # hostNetwork: true
+  serviceAccountName: argo
   volumes:
   - name: docker-config
     secret: 

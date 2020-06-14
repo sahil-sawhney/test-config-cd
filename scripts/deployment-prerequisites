@@ -9,5 +9,3 @@ kubectl create namespace $NAMESPACE | echo 'Namespace already exist'
 
 kubectl -n $NAMESPACE create secret docker-registry test-regcred --docker-server=$ARTIFACTORY_REPO \
     --docker-username=$ARTIFACTORY_USER --docker-password=$ARTIFACTORY_PASSWORD | echo 'Secret already exist'
-
-kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=$NAMESPACE:default | echo 'Required Rolebinding already exist'
