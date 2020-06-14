@@ -7,7 +7,7 @@ spec:
   - name: test-regcred
   entrypoint: cd-template
   volumes:
-  - name: kubeconfig-vol
+  - name: kubeconfig
     secret:
       secretName: kubeconfig
   templates:
@@ -55,7 +55,8 @@ spec:
           revision: master
     container:
       image: alpine
-      command: ["ls"]
+      command: ["echo"]
+      args: ["code checked out successfully"]
     outputs:
       artifacts:
       - name: cd-repo

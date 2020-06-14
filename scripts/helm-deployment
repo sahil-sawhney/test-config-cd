@@ -10,10 +10,12 @@ echo $HELM_VALUES > sub-values.yaml
 sed -i "s#,#\n#g" sub-values.yaml
 sed -i "s#=#: #g" sub-values.yaml
 
-if helm list | grep $HELM_RELEASE; then
-    helm install $HELM_RELEASE test-app --values sub-values.yaml
-else
+helm list | grep $HELM_RELEASE
+
+if ; then
     helm upgrade $HELM_RELEASE test-app --values sub-values.yaml
+else
+    helm install $HELM_RELEASE test-app --values sub-values.yaml
 fi
 
 
