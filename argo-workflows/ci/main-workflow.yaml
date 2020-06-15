@@ -104,7 +104,7 @@ spec:
         subPath: .dockerconfigjson
       command: [sh, -c]
       workingDir: /src
-      args: ["apk update; apk fetch openjdk8; apk add openjdk8; apk add --no-cache bash; DOCKER_TAG={{inputs.parameters.git-sha}}; ./sbt docker:publish"]
+      args: ["apk update; apk fetch openjdk8; apk add openjdk8; apk add --no-cache bash; export DOCKER_TAG={{inputs.parameters.git-sha}}; echo 'Image tag is -> '$DOCKER_TAG; ./sbt docker:publish"]
     sidecars:
     - name: docker-in-docker
       image: docker:18.09-dind
