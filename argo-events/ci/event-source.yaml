@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: github-event-source
+spec:
+  type: github
+  github:
+    ciEvent:
+      owner: sahil-sawhney
+      repository: test-application-ci
+      webhook:
+        endpoint: /push
+        port: "12000"
+        method: POST
+        url: EXPOSED_GATEWAY_URL
+      events:
+        - "pull_request"
+      apiToken:
+        name: github-access
+        key: token
+      insecure: true
+      contentType: json
+      active: true
+          
+            

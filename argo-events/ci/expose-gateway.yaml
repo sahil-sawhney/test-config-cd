@@ -1,0 +1,12 @@
+kind: Service 
+apiVersion: v1 
+metadata:
+  name: github-gateway-lb
+  namespace: argo-events
+spec:
+  type: LoadBalancer
+  selector:
+    gateway-name: github 
+  ports:
+    - port: 12000 
+      targetPort: 12000
